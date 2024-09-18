@@ -1,0 +1,66 @@
+import java.util.*;
+
+public class ShamirSecretSharing {
+    private static long decodeYValue(String base, String value) {
+        int baseInt = Integer.parseInt(base); 
+        return Long.parseLong(value, baseInt); 
+    }
+
+    private static double lagrangeInterpolation(List<long[]> points, int k) {
+        double constantTerm = 0.0;
+
+        for (int i = 0; i < k; i++) {
+            long xi = points.get(i)[0];
+            long yi = points.get(i)[1]; 
+
+            double term = yi;
+
+            for (int j = 0; j < k; j++) {
+                if (i != j) {
+                    long xj = points.get(j)[0];
+                    term *= (double)(0 - xj) / (xi - xj);
+                }
+            }
+
+            constantTerm += term;
+        }
+
+        return constantTerm;
+    }
+
+    public static void main(String[] args) {
+       
+        Map<String, Map<String, String>> parsedInput = new HashMap<>();
+        parsedInput.put("1", Map.of("base", "10", "value", "28735619723837"));
+        parsedInput.put("2", Map.of("base", "16", "value", "1A228867F0CA"));
+        parsedInput.put("3", Map.of("base", "12", "value", "32811A4AA0B7B"));
+        parsedInput.put("4", Map.of("base", "11", "value", "917978721331A"));
+        parsedInput.put("5", Map.of("base", "16", "value", "1A22886782E1"));
+        parsedInput.put("6", Map.of("base", "10", "value", "28735619654702"));
+        parsedInput.put("7", Map.of("base", "14", "value", "71AB5070CC4B"));
+        parsedInput.put("8", Map.of("base", "9", "value", "122662581541670"));
+        parsedInput.put("9", Map.of("base", "8", "value", "642121030037605"));
+
+        int n = 9; 
+        int k = 6; 
+
+        List<long[]> points = new ArrayList<>();
+
+        for (String key : parsedInput.keySet()) {
+            long x = Long.parseLong(key);
+            Map<String, String> pointData = parsedInput.get(key);
+            long y = decodeYValue(pointData.get("base"), pointData.get("value"));
+            points.add(new long[]{x, y});
+        }
+
+        points.sort(Comparator.comparingLong(p -> p[0]));
+
+        double constantTerm = lagrangeInterpolation(points, k);
+
+        System.out.println((long) Math.round(constantTerm));
+    }
+}
+
+
+Output:
+28735619723864
